@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template_string
 from chat_hander import init_chat, continue_chat
 from functools import wraps
 import json
@@ -17,6 +17,27 @@ def token_required(f):
             return jsonify({'message': 'Token inválido!'}), 403
         return f(*args, **kwargs)
     return decorated_function
+
+@app.route('/')
+def home():
+    """
+    Rota para verificar se o site está online.
+    Retorna uma página HTML com o texto "IFTUTOR".
+    """
+    html_content = """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>IFTUTOR</title>
+    </head>
+    <body>
+        <h1>IFTUTOR</h1>
+    </body>
+    </html>
+    """
+    return render_template_string(html_content)
 
 @app.route('/start_chat', methods=['POST'])
 @token_required  # Protege a view com o token de autorização
