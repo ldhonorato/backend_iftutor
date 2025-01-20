@@ -1,7 +1,7 @@
 from llama_index.agent.openai import OpenAIAgent
 from llama_index.llms.openai import OpenAI
 from config import MODEL, preencher_system_prompt_iftutor, PROMPT_PRIMEIRA_INTERACAO, BASE_CHAT_PATH
-from index_handler import QueryEngineToolsSingleton
+from index_handler import QueryEngineToolsSingleton, PATH_PAPERS, PATH_PAPERS_INDEX, PATH_RESUMOS, PATH_RESUMOS_INDEX
 from llama_index.core.storage.chat_store import SimpleChatStore
 from llama_index.core.memory import ChatMemoryBuffer
 import os
@@ -45,7 +45,8 @@ def init_chat(  nome: str,
                 disciplinas_afinidade: str,
                 disciplinas_dificuldade: str,
                 autoavaliacao_desempenho: str,
-                horarios_disponiveis: str):
+                horarios_disponiveis: str,
+                tipo=''):
     
     print("Criando um novo chat...")
     llm = OpenAI(model=MODEL)
@@ -68,7 +69,15 @@ def init_chat(  nome: str,
         chat_store_key=chat_store_key,
     )
     
-    agent = OpenAIAgent.from_tools( QueryEngineToolsSingleton.get_tools(),
+
+    if tipo == 'COMPLETO':
+        tools = QueryEngineToolsSingleton.get_tools(path_index=PATH_PAPERS_INDEX, path_files=PATH_PAPERS)
+    elif tipo == 'RESUMO':
+        tools = QueryEngineToolsSingleton.get_tools(path_index=PATH_RESUMOS_INDEX, path_files=PATH_RESUMOS)
+    else:
+        tools = []  # Lista vazia para quando o parâmetro não for especificado ou inválido.
+
+    agent = OpenAIAgent.from_tools( tools,
                                     llm=llm,
                                     verbose=True,
                                     system_prompt=system_prompt,
@@ -83,7 +92,7 @@ def init_chat(  nome: str,
 
 
 
-def continue_chat(chat_store_key, new_message):
+def continue_chat(chat_store_key, new_message, tipo=''):
     print("Recuperando o chat...")
     
     # Carregar o chat store persistido
@@ -98,8 +107,15 @@ def continue_chat(chat_store_key, new_message):
     )
 
     # Criar o agente OpenAIAgent com os dados carregados
+    if tipo == 'COMPLETO':
+        tools = QueryEngineToolsSingleton.get_tools(path_index=PATH_PAPERS_INDEX, path_files=PATH_PAPERS)
+    elif tipo == 'RESUMO':
+        tools = QueryEngineToolsSingleton.get_tools(path_index=PATH_RESUMOS_INDEX, path_files=PATH_RESUMOS)
+    else:
+        tools = []  # Lista vazia para quando o parâmetro não for especificado ou inválido.
+
     agent = OpenAIAgent.from_tools(
-        QueryEngineToolsSingleton.get_tools(),
+        tools,
         llm=llm,
         verbose=True,
         memory=chat_memory

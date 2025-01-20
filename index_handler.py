@@ -23,7 +23,7 @@ PATH_RESUMOS_INDEX = os.path.join(BASE_DIR,'Artigos_resumidos_index')
 from threading import Lock
 
 class QueryEngineToolsSingleton:
-    _instance = None  # Armazena a única instância da classe
+    _instances = {}  # Armazena a única instância da classe
     _lock = Lock()  # Garante que a criação seja thread-safe
 
     @classmethod
@@ -32,41 +32,41 @@ class QueryEngineToolsSingleton:
         Retorna uma instância única de query_engine_tools. Cria a instância
         apenas na primeira chamada, utilizando o padrão singleton.
         """
-        if cls._instance is None:
+        if path_index not in cls._instances:
             with cls._lock:  # Bloqueia a criação da instância para evitar condições de corrida
-                if cls._instance is None:
-                    print('Inicializando query_engine_tools...')
+            
+                print('Inicializando query_engine_tools...')
 
-                    # Carregar ou construir o índice
-                    print('Tentando carregar index...')
-                    result, full_papers_index = cls._load_indexs(path_index)
+                # Carregar ou construir o índice
+                print('Tentando carregar index...')
+                result, full_papers_index = cls._load_indexs(path_index)
 
-                    if not result:
-                        print('Index não encontrado. Construindo index...')
-                        full_papers_index = cls._build_indexs(path_files, path_index)
+                if not result:
+                    print('Index não encontrado. Construindo index...')
+                    full_papers_index = cls._build_indexs(path_files, path_index)
 
-                    if not full_papers_index:
-                        raise Exception("Erro no load/build index")
+                if not full_papers_index:
+                    raise Exception("Erro no load/build index")
 
-                    print('Criando query engine...')
-                    full_papers_engine = full_papers_index.as_query_engine(similarity_top_k=similarity_top_k)
+                print('Criando query engine...')
+                full_papers_engine = full_papers_index.as_query_engine(similarity_top_k=similarity_top_k)
 
-                    print('Montando lista de tools...')
-                    cls._instance = [
-                        QueryEngineTool(
-                            query_engine=full_papers_engine,
-                            metadata=ToolMetadata(
-                                name="artigos_base_conhecimento",
-                                description=(
-                                    "Fornece informações baseadas em uma base de dados composta por 17 artigos científicos selecionados "
-                                    "sobre estratégias de estudo, organização do tempo e autorregulação da aprendizagem. "
-                                    "Utilize uma pergunta detalhada em texto simples como entrada para a ferramenta. "
-                                    "O modelo retornará respostas fundamentadas em literatura acadêmica."
-                                ),
+                print('Montando lista de tools...')
+                cls._instances[path_index] = [
+                    QueryEngineTool(
+                        query_engine=full_papers_engine,
+                        metadata=ToolMetadata(
+                            name="artigos_base_conhecimento",
+                            description=(
+                                "Fornece informações baseadas em uma base de dados composta por 17 artigos científicos selecionados "
+                                "sobre estratégias de estudo, organização do tempo e autorregulação da aprendizagem. "
+                                "Utilize uma pergunta detalhada em texto simples como entrada para a ferramenta. "
+                                "O modelo retornará respostas fundamentadas em literatura acadêmica."
                             ),
                         ),
-                    ]
-        return cls._instance
+                    ),
+                ]
+        return cls._instances[path_index]
 
     @classmethod
     def _load_indexs(cls, path_index):

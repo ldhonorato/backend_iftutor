@@ -70,11 +70,14 @@ def start_chat():
         autoavaliacao_desempenho = data.get('autoavaliacao_desempenho')
         horarios_disponiveis = data.get('horarios_disponiveis')
 
+        tipo = request.args.get('tipo', '').upper()
+
        # Iniciar o chat
         response, chat_store_key = init_chat(
             nome, curso_periodo, idade, estilo_aprendizagem,
             disciplinas_afinidade, disciplinas_dificuldade,
-            autoavaliacao_desempenho, horarios_disponiveis
+            autoavaliacao_desempenho, horarios_disponiveis,
+            tipo
         )
         return jsonify({'message': 'Chat iniciado com sucesso!', "response": str(response), "chat_store_key": chat_store_key}, 200)
 
