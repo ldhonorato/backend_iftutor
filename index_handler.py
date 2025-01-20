@@ -11,8 +11,12 @@ openai.api_key = os.getenv("OPENAI_API_KEY")#os.environ["OPENAI_API_KEY"]
 
 from llama_index.core.tools import QueryEngineTool, ToolMetadata
 
-PATH_PAPERS = './Artigos'
-PATH_PAPERS_INDEX = './Artigos Index'
+# Obter o diretório do arquivo config.py
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+PATH_PAPERS = os.path.join(BASE_DIR, 'Artigos')
+PATH_PAPERS_INDEX = os.path.join(BASE_DIR,'Artigos Index')
 PATH_RESUMOS = ''
 
 from threading import Lock
