@@ -10,7 +10,7 @@ BASE_CHAT_PATH = os.path.join(BASE_DIR, "chat_sessions")
 TOKEN = "p1LyGir5OGc4Vrmb116uKKQyv7il76Hz"  # Token estático para proteger as views
 
 PROMPT_PRIMEIRA_INTERACAO = """**Primeira interação:** 
-  - Apresente ao estudante uma visão geral de como estudar de forma eficaz, considerando técnicas baseadas na ciência, como:
+  - Apresente ao estudante uma visão geral de como estudar de forma eficaz, considerando técnicas baseadas na ciência.
   - Ofereça também um **esboço personalizado de agenda semanal de estudos**, levando em conta as informações fornecidas pelo estudante. A agenda deve equilibrar disciplinas com maior e menor afinidade, incluindo pausas e momentos para revisar o que foi aprendido. 
   Solicite que o usuário forneça feedback para ajuste da rotina ou esclarecimento sobre alguma orientação.
 """

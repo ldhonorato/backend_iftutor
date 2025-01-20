@@ -16,8 +16,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 PATH_PAPERS = os.path.join(BASE_DIR, 'Artigos')
-PATH_PAPERS_INDEX = os.path.join(BASE_DIR,'Artigos_Index')
-PATH_RESUMOS = ''
+PATH_PAPERS_INDEX = os.path.join(BASE_DIR,'Artigos_index')
+PATH_RESUMOS = os.path.join(BASE_DIR, 'Artigos resumidos')
+PATH_RESUMOS_INDEX = os.path.join(BASE_DIR,'Artigos_resumidos_index')
 
 from threading import Lock
 
@@ -26,7 +27,7 @@ class QueryEngineToolsSingleton:
     _lock = Lock()  # Garante que a criação seja thread-safe
 
     @classmethod
-    def get_tools(cls, similarity_top_k=3):
+    def get_tools(cls, similarity_top_k=3, path_index=PATH_PAPERS_INDEX, path_files=PATH_PAPERS):
         """
         Retorna uma instância única de query_engine_tools. Cria a instância
         apenas na primeira chamada, utilizando o padrão singleton.
@@ -38,11 +39,11 @@ class QueryEngineToolsSingleton:
 
                     # Carregar ou construir o índice
                     print('Tentando carregar index...')
-                    result, full_papers_index = cls._load_indexs_full_paper()
+                    result, full_papers_index = cls._load_indexs(path_index)
 
                     if not result:
                         print('Index não encontrado. Construindo index...')
-                        full_papers_index = cls._build_indexs_full_paper()
+                        full_papers_index = cls._build_indexs(path_files, path_index)
 
                     if not full_papers_index:
                         raise Exception("Erro no load/build index")
@@ -68,47 +69,47 @@ class QueryEngineToolsSingleton:
         return cls._instance
 
     @classmethod
-    def _load_indexs_full_paper(cls):
+    def _load_indexs(cls, path_index):
         """
         Método privado para carregar o índice de artigos armazenado.
         """
         try:
             storage_context = StorageContext.from_defaults(
-                persist_dir=PATH_PAPERS_INDEX
+                persist_dir=path_index
             )
-            full_papers_index = load_index_from_storage(storage_context)
-            return True, full_papers_index
+            index = load_index_from_storage(storage_context)
+            return True, index
         except Exception as e:
             print(f"Erro ao carregar índice: {e}")
             return False, None
 
     @classmethod
-    def _build_indexs_full_paper(cls):
+    def _build_indexs(cls, path_files, save_index_path):
         """
         Método privado para construir e persistir o índice de artigos.
         """
         try:
             # Carregar documentos
-            full_papers_docs = SimpleDirectoryReader(
+            docs = SimpleDirectoryReader(
                 input_files=[
-                    os.path.join(PATH_PAPERS, p)
-                    for p in os.listdir(PATH_PAPERS)
+                    os.path.join(path_files, p)
+                    for p in os.listdir(path_files)
                     if p.endswith(".pdf")
                 ]
             ).load_data()
 
             # Construir índice
-            full_papers_index = VectorStoreIndex.from_documents(full_papers_docs)
+            index = VectorStoreIndex.from_documents(docs)
 
             # Persistir índice
-            full_papers_index.storage_context.persist(persist_dir=PATH_PAPERS_INDEX)
+            index.storage_context.persist(persist_dir=save_index_path)
 
-            return full_papers_index
+            return index
         except Exception as e:
             print(f"Erro ao construir índice: {e}")
             return None
 
 
 if __name__ == '__main__':
-    tools = QueryEngineToolsSingleton.get_tools(similarity_top_k=3)
+    tools = QueryEngineToolsSingleton.get_tools(similarity_top_k=3, path_files=PATH_RESUMOS, path_index=PATH_RESUMOS_INDEX)
     print(tools)
