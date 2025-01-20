@@ -1,5 +1,12 @@
+import os
+
+# Obter o diretório do arquivo config.py
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 MODEL = "gpt-4o-mini"#"gpt-3.5-turbo-0613"
-BASE_CHAT_PATH = "chat_sessions"
+BASE_CHAT_PATH = os.path.join(BASE_DIR, "chat_sessions")
+
 TOKEN = "p1LyGir5OGc4Vrmb116uKKQyv7il76Hz"  # Token estático para proteger as views
 
 PROMPT_PRIMEIRA_INTERACAO = """**Primeira interação:** 
