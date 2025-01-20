@@ -7,7 +7,7 @@ from llama_index.core import (
 import os
 import openai
 
-openai.api_key = os.environ["OPENAI_API_KEY"]
+openai.api_key = os.getenv("OPENAI_API_KEY")#os.environ["OPENAI_API_KEY"]
 
 from llama_index.core.tools import QueryEngineTool, ToolMetadata
 
@@ -39,7 +39,7 @@ class QueryEngineToolsSingleton:
                     if not result:
                         print('Index não encontrado. Construindo index...')
                         full_papers_index = cls._build_indexs_full_paper()
-                    
+
                     if not full_papers_index:
                         raise Exception("Erro no load/build index")
 
@@ -98,7 +98,7 @@ class QueryEngineToolsSingleton:
 
             # Persistir índice
             full_papers_index.storage_context.persist(persist_dir=PATH_PAPERS_INDEX)
-            
+
             return full_papers_index
         except Exception as e:
             print(f"Erro ao construir índice: {e}")
