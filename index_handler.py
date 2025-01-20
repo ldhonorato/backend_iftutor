@@ -16,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 PATH_PAPERS = os.path.join(BASE_DIR, 'Artigos')
-PATH_PAPERS_INDEX = os.path.join(BASE_DIR,'Artigos Index')
+PATH_PAPERS_INDEX = os.path.join(BASE_DIR,'Artigos_Index')
 PATH_RESUMOS = ''
 
 from threading import Lock
